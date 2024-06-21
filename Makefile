@@ -7,6 +7,7 @@ DEBUG_MODE := $(strip $(debug))
 SERVER_MODE := $(strip $(server))
 
 DEFAULT_FLAGS := -lm
+LINEAR_ALGEBRA_FLAGS := -llapack -lblas
 VIZUALIZER_FLAGS := -lGL -lGLU -lglut
 PNGOUTPUT_FLAGS := -lIL -lILU -lILUT
 ERROR_FLAGS := -Wall -Wextra
@@ -19,13 +20,13 @@ ifeq ($(SERVER_MODE), true)
  GCC := gcc src/robotsim_main.c src/utilities/datastructs.c src/utilities/dynamics_utils.c src/utilities/math_utils.c \
   src/utilities/file_utils.c src/utilities/param_utils.c src/sensors.c src/robotmodel.c src/utilities/arenas.c src/stat.c \
   src/utilities/output_utils.c src/utilities/debug_utils.c src/utilities/stack.c src/utilities/data_struct.c
- GCC += $(DEFAULT_FLAGS) $(ERROR_FLAGS) $(CANCEL_FLAGS) $(LDFLAGS) -DSERVER_MODE -o robotflocksim_main_server
+ GCC += $(DEFAULT_FLAGS) $(ERROR_FLAGS) $(CANCEL_FLAGS) $(LDFLAGS) $(LINEAR_ALGEBRA_FLAGS) -DSERVER_MODE -o robotflocksim_main_server
 else
  GCC := gcc src/robotsim_main.c src/utilities/datastructs.c src/utilities/dynamics_utils.c src/utilities/math_utils.c \
   src/utilities/file_utils.c src/utilities/param_utils.c src/sensors.c src/robotmodel.c src/colors.c src/vizualizer/objects_2d.c \
   src/objects_menu.c src/utilities/arenas.c src/vizualizer/objects_3d.c src/stat.c src/dynspecviz.c src/utilities/output_utils.c \
   src/utilities/debug_utils.c src/utilities/stack.c src/utilities/data_struct.c
- GCC += -g $(DEFAULT_FLAGS) $(VIZUALIZER_FLAGS) $(ERROR_FLAGS) $(CANCEL_FLAGS) $(LDFLAGS) -o robotflocksim_main 
+ GCC += -g $(DEFAULT_FLAGS) $(VIZUALIZER_FLAGS) $(ERROR_FLAGS) $(CANCEL_FLAGS) $(LDFLAGS) $(LINEAR_ALGEBRA_FLAGS) -o robotflocksim_main 
 endif
 
 # Setting up png output mode

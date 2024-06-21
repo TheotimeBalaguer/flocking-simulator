@@ -116,13 +116,21 @@ void ChangeUnitModelParameter(unit_model_params_t * params, int WhichParam,
         break;
     case 13:
     {
-        params->alpha.Value += StepSize;
-        if (params->alpha.Value < 0.0) {
-            params->alpha.Value = 0.0;
+        params->gamma.Value += StepSize;
+        if (params->gamma.Value < 0.0) {
+            params->gamma.Value = 0.0;
         }
     }
         break;
     case 14:
+    {
+        params->gammaObst.Value += StepSize;
+        if (params->gammaObst.Value < 0.0) {
+            params->gammaObst.Value = 0.0;
+        }
+    }
+        break;
+    case 15:
     {
         params->ref_distance.Value += StepSize * 10.0;
         if (params->ref_distance.Value < 0.0) {
@@ -130,12 +138,12 @@ void ChangeUnitModelParameter(unit_model_params_t * params, int WhichParam,
         }
     }
         break;
-    case 15:
+    case 16:
     {
         params->transmit_power.Value += StepSize * 0.01;
     }
         break;
-    case 16:
+    case 17:
     {
         params->freq.Value += StepSize * 0.01;
         if (params->freq.Value < 0.0) {
@@ -143,12 +151,12 @@ void ChangeUnitModelParameter(unit_model_params_t * params, int WhichParam,
         }
     }
         break;
-    case 17:
+    case 18:
     {
         params->sensitivity_thresh.Value += StepSize * 0.01;
     }
         break;
-    case 18:
+    case 19:
     {
         params->communication_type.Value += StepSize;
         if (params->communication_type.Value < 0.0) {
@@ -156,7 +164,7 @@ void ChangeUnitModelParameter(unit_model_params_t * params, int WhichParam,
         }
     }
         break;
-    case 19:
+    case 20:
     {
         params->flocking_type.Value += StepSize;
         if (params->flocking_type.Value < 0.0) {
@@ -185,7 +193,8 @@ void SetNamesOfUnitModelParams(unit_model_params_t * UnitParams) {
     sprintf(UnitParams->Wind_Magn_Avg.UnitOfMeas, "m/s");
     sprintf(UnitParams->linear_loss.UnitOfMeas, "dBm/m");
     sprintf(UnitParams->ref_distance.UnitOfMeas, "m");
-    sprintf(UnitParams->alpha.UnitOfMeas, "-");
+    sprintf(UnitParams->gamma.UnitOfMeas, "-");
+    sprintf(UnitParams->gammaObst.UnitOfMeas, "-");
     sprintf(UnitParams->transmit_power.UnitOfMeas, "dBm");
     sprintf(UnitParams->freq.UnitOfMeas, "GHz");
     sprintf(UnitParams->sensitivity_thresh.UnitOfMeas, "dBm");
@@ -205,7 +214,14 @@ void SetNamesOfUnitModelParams(unit_model_params_t * UnitParams) {
     sprintf(UnitParams->Sigma_Outer_Z.Name, "Strength of outer noise (Z)");
     sprintf(UnitParams->Wind_Magn_Avg.Name, "Average Wind Speed");
     sprintf(UnitParams->linear_loss.Name, "Obstacles Linear Loss");
-    sprintf(UnitParams->alpha.Name, "Alpha Comm");
+    // PrintMatrix(OutputPhase->Laplacian, SitParams->NumberOfAgents, SitParams->NumberOfAgents);
+
+    // printf("\nReceivedPower:\n");
+    // PrintMatrix(OutputPhase->ReceivedPower, SitParams->NumberOfAgents, SitParams->NumberOfAgents);
+
+    // printf("\nNeighbors:\n");
+    sprintf(UnitParams->gamma.Name, "Gamma Comm");
+    sprintf(UnitParams->gammaObst.Name, "Gamma Obst Comm");
     sprintf(UnitParams->ref_distance.Name, "Reference Comm Distance");
     sprintf(UnitParams->transmit_power.Name, "Transmit Power");
     sprintf(UnitParams->freq.Name, "Frequency");
@@ -238,7 +254,8 @@ void GetUnitModelParamsFromFile(unit_model_params_t * UnitParams,
         UnitParams->Sigma_Outer_Z.Value = 0.0;
         UnitParams->linear_loss.Value = 0.008;
         UnitParams->ref_distance.Value = 600;
-        UnitParams->alpha.Value = 2;
+        UnitParams->gamma.Value = 2;
+        UnitParams->gammaObst.Value = 4;
         UnitParams->transmit_power.Value = 10.0;
         UnitParams->freq.Value = 2.6;
         UnitParams->sensitivity_thresh.Value = -10.0;
@@ -325,8 +342,11 @@ void GetUnitModelParamsFromFile(unit_model_params_t * UnitParams,
             } else if (strcmp(ReadedName, "Reference_Distance") == 0) {
                 UnitParams->ref_distance.Value = atof(ReadedValue);
                 NumberOfReadedNames++;
-            } else if (strcmp(ReadedName, "Alpha") == 0) {
-                UnitParams->alpha.Value = atof(ReadedValue);
+            } else if (strcmp(ReadedName, "Gamma") == 0) {
+                UnitParams->gamma.Value = atof(ReadedValue);
+                NumberOfReadedNames++;
+            } else if (strcmp(ReadedName, "GammaObst") == 0) {
+                UnitParams->gammaObst.Value = atof(ReadedValue);
                 NumberOfReadedNames++;
             } else if (strcmp(ReadedName, "Transmit_Power") == 0) {
                 UnitParams->transmit_power.Value = atof(ReadedValue);
@@ -348,9 +368,9 @@ void GetUnitModelParamsFromFile(unit_model_params_t * UnitParams,
     }
 
     //Checking the existance of parameters...
-    if (NumberOfReadedNames < 21) {
+    if (NumberOfReadedNames < 22) {
 
-        printf("21 paramers are necessary in \n'%s' \n\nRequired format (example):\n\n", recover_fileName(InputFile));
+        printf("22 paramers are necessary in \n'%s' \n\nRequired format (example):\n\n", recover_fileName(InputFile));
         printf("tau_PID_XY=1\n");
         printf("tau_PID_Z=1\n");
         printf("a_max=600\n");
@@ -364,7 +384,8 @@ void GetUnitModelParamsFromFile(unit_model_params_t * UnitParams,
         printf("Wind_Magn_Avg=0.0\n");
         printf("Wind_StDev=0.0\n");
         printf("Wind_Angle=0.0\n");
-        printf("Alpha=2\n");
+        printf("Gamma=2\n");
+        printf("GammaObst=4\n");
         printf("Reference_Distance=600\n");
         printf("Linear_Loss=0.05\n");
         printf("Transmit_Power=10\n");
@@ -416,9 +437,12 @@ void SaveUnitModelParamsToFile(FILE * OutputFile_Unit,
     fprintf(OutputFile_Unit, "# Reference Comm Distance (cm)\n");
     fprintf(OutputFile_Unit, "Reference_Distance=%lf\n",
             UnitParams->ref_distance.Value);
-    fprintf(OutputFile_Unit, "# Alpha (-)\n");
-    fprintf(OutputFile_Unit, "Alpha=%lf\n",
-            UnitParams->alpha.Value);
+    fprintf(OutputFile_Unit, "# Gamma (-)\n");
+    fprintf(OutputFile_Unit, "Gamma=%lf\n",
+            UnitParams->gamma.Value);
+        fprintf(OutputFile_Unit, "# GammaObst (-)\n");
+    fprintf(OutputFile_Unit, "GammaObst=%lf\n",
+            UnitParams->gammaObst.Value);
     fprintf(OutputFile_Unit, "# Linear loss (dBm/m)\n");
     fprintf(OutputFile_Unit, "Linear_Loss=%lf\n",
             UnitParams->linear_loss.Value);

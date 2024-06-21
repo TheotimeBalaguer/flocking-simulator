@@ -33,11 +33,6 @@ typedef struct {
 //////////////////////////////////////////////////////////////////////
 /* Debug functions */
 
-/* Printing out the components of a vector to the console
- * "Dim" is the number of components of the vector "Vector"
- */
-void PrintVector(double *Vector, const int Dim);
-
 /* Debug mode utils for detecting segmentation faults */
 void InstallSegfaultHandler();
 

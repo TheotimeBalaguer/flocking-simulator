@@ -132,11 +132,12 @@ typedef struct {
 
     /* Communication parameters */
     unit_param_double_t linear_loss;
-    unit_param_double_t ref_distance;
-    unit_param_double_t alpha;
-    unit_param_double_t transmit_power;
-    unit_param_double_t freq;
-    unit_param_double_t sensitivity_thresh;
+    unit_param_double_t ref_distance; // m
+    unit_param_double_t gamma;
+    unit_param_double_t gammaObst;
+    unit_param_double_t transmit_power; // dBm
+    unit_param_double_t freq; // GHz
+    unit_param_double_t sensitivity_thresh; // dBm
 
     /* Hyperparameters */
     unit_param_double_t communication_type;

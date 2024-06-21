@@ -8,22 +8,6 @@
 
 #include "debug_utils.h"
 
-/* Printing out the components of a vector to stdout */
-void PrintVector(double *Vector, const int Dim) {
-
-    printf("( ");
-
-    int i;
-    for (i = 0; i < Dim; i++) {
-
-        printf("%lf ", Vector[i]);
-
-    }
-
-    printf(")\n\n");
-
-}
-
 /* Segfault detection in debug mode */
 /**
  * Signal handler for SIGSEGV, SIGABRT and SIGBUS to print a stack trace when

@@ -218,7 +218,7 @@ void Initialize() {
 
     /* Tail display is OFF. */
     ActualVizParams.DisplayTail = false;
-    ActualVizParams.LengthOfTail = 2500;
+    ActualVizParams.LengthOfTail = 200;
 
     /* Synchronizing visualization speed */
     ActualVizParams.VizSpeedUp = ActualSitParams.VizSpeedUp;
@@ -438,7 +438,7 @@ void DrawCopters(phase_t * Phase, phase_t * GPSPhase, const int TimeStep) {
         // for (i = -HowManyTics; i < HowManyTics; i++) {
 
         //     glVertex2d(-HowManyTics * TicDensity, i * TicDensity);
-        //     glVertex2d(LengthOfAxis, i * TicDensity);
+        //     glVertex2d(LengthOfAxis, i * TicDensity);cnt
 
         // }
         // glEnd();
@@ -682,20 +682,32 @@ void DrawCopters(phase_t * Phase, phase_t * GPSPhase, const int TimeStep) {
 
         /* Draw Interactions Arrows */
         if (ActualVizParams.DisplayInt == true) {
-            float colors[5][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {0.8, 0.3, 0.1}, {1, 1, 1}}; //red = rep; green = att; blue = align; orange = obst; white = spp
+            float colors[7][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {0.8, 0.3, 0.1}, {1, 1, 1}, {1, 0, 0}, {1, 0.2, 1}}; //red = rep; green = att; blue = align; orange = obst; white = spp; ? = potential
+            int cycling_int = cntInt%7;
             for (i = 0; i < Phase->NumberOfAgents; i++) {
-                for (int comp = 0; comp < cntInt%5; comp ++) {
-                    // comp = 1;
-                    GetAgentsCoordinates(AgentsCoordinates, Phase, i);
+                // printf("--- Agent number %d ---\n", i);
+                // PrintInnerState(Phase->InnerStates[i]);
 
+                GetAgentsCoordinates(AgentsCoordinates, Phase, i);
                     DrawVelocityArrow_2D(AgentsCoordinates[0] - ActualVizParams.CenterX,
                             AgentsCoordinates[1] - ActualVizParams.CenterY,
-                            Phase->InnerStates[i][3 + 2 * comp] * 40, Phase->InnerStates[i][3 + 2 * comp + 1] * 40,
+                            Phase->InnerStates[i][3 + 2 * cycling_int] * 40, Phase->InnerStates[i][3 + 2 * cycling_int + 1] * 40,
                             ActualVizParams.MapSizeXY,
-                            colors[comp]);
-                }
+                            colors[cycling_int]);
             }
-            // printf("%d\n", cntInt);
+            // Old arrow printing behaviour
+            // for (int comp = 0; comp < cntInt%7; comp ++) {
+            //     // comp = 1;
+            //     GetAgentsCoordinates(AgentsCoordinates, Phase, i);
+
+            //     DrawVelocityArrow_2D(AgentsCoordinates[0] - ActualVizParams.CenterX,
+            //             AgentsCoordinates[1] - ActualVizParams.CenterY,
+            //             Phase->InnerStates[i][3 + 2 * comp] * 40, Phase->InnerStates[i][3 + 2 * comp + 1] * 40,
+            //             ActualVizParams.MapSizeXY,
+            //             colors[comp]);
+            // }
+
+            // printf("cntInt: %d\n", cntInt);
         }
 
 
@@ -731,9 +743,10 @@ void DrawCopters(phase_t * Phase, phase_t * GPSPhase, const int TimeStep) {
         /* Drawing communication network, if it's toggled on */
         if (ActualVizParams.DisplayCommNetwork == true) {
             for (i = 0; i < Phase->NumberOfAgents; i++) {
-                DrawSensorRangeNetwork_2D(PhaseData,
-                        &ActualUnitParams, i, Polygons, Now,
-                        &ActualVizParams, ActualColorConfig.CommNetWorkColor);
+                // DrawSensorRangeNetwork_2D(PhaseData,
+                //         &ActualUnitParams, i, Polygons, Now,
+                //         &ActualVizParams, ActualColorConfig.CommNetWorkColor);
+                DrawNeighbors(PhaseData, i, Polygons, Now, &ActualVizParams, ActualColorConfig.CommNetWorkColor);
             }
         }
 
@@ -1396,10 +1409,10 @@ void HandleKeyBoard(unsigned char key, int x, int y) {
         /* Generating integer from hexadecimal string */
         char key_temp[1];
         key_temp[0] = key;
-        int keyint = strtol(key_temp, NULL, 22);
+        int keyint = strtol(key_temp, NULL, 23);
         if (ActualVizParams.UnitParamsDisplayed == true) {
 
-            if (keyint <= 21 && keyint > 0) {
+            if (keyint <= 22 && keyint > 0) {
                 ActualVizParams.WhichParamIsSelected = keyint;
             }
 
@@ -1591,8 +1604,13 @@ void HandleKeyBoardSpecial(int key, int x, int y) {
         ActualVizParams.DisplayLeader = !ActualVizParams.DisplayLeader;
 
     } else if (key == GLUT_KEY_F4) {
-        ActualVizParams.DisplayInt = !ActualVizParams.DisplayInt;
         cntInt++;
+        if (cntInt%7 == 0)
+        {
+            ActualVizParams.DisplayInt = false;
+        } else {
+            ActualVizParams.DisplayInt = true;
+        }
 
         /* F5 Saves the parameters */
     } else if (key == GLUT_KEY_F5) {
@@ -1852,6 +1870,7 @@ void HandleMouseMotion(int x, int y) {
 }
 #endif
 /* print help */
+/* TODO: Update help message */
 void print_help(void) {
     printf("This is robotsim created at ELTE Department of Biological Physics.\n"
            "\n"
@@ -1864,6 +1883,7 @@ void print_help(void) {
            "-novis      do not open GUI\n"
            "-o PATH     define output directory\n"
            "-u FILE     define unitparams file\n"
+           "-verb INT   print set up files or not\n"
            "\n"
     );
 }

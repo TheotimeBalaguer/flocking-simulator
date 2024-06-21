@@ -28,6 +28,11 @@
 #include <string.h>
 #include <stdlib.h>
 
+// LAPACK function declaration for dgeev
+extern void dgeev_(char* jobvl, char* jobvr, int* n, double* a, int* lda,
+                   double* wr, double* wi, double* vl, int* ldvl, double* vr,
+                   int* ldvr, double* work, int* lwork, int* info);
+
 void StepTarget(double * TargetPosition,
         sit_parameters_t * SitParams, vizmode_params_t * VizParams,
         flocking_model_params_t * FlockingParams, int TimeStepReal);
@@ -50,5 +55,7 @@ void InitializePreferredVelocities(phase_t * Phase,
         unit_model_params_t * UnitParams, double *WindVelocityVector);
 void freePreferredVelocities(phase_t * Phase,
         flocking_model_params_t * FlockingParams, sit_parameters_t * SitParams);
+
+void print_matrix(const char* desc, int m, int n, double* a, int lda);
 
 #endif

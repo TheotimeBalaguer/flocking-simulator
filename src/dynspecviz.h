@@ -79,6 +79,12 @@ void DrawSensorRangeNetwork_3D(phase_t * PhaseData,
         const int Now,
         const double h, const double MapSizexy, const float *color);
 
+
+void DrawNeighbors(phase_t * PhaseData, const int WhichAgent,
+            double ** Polygons,
+            const int Now,
+            vizmode_params_t * VizParams, const float *color);
+
 /* 3D camera movement */
 
 void TranslateCameraOnXYPlane(vizmode_params_t * VizParams, double *Direction,

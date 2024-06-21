@@ -54,6 +54,9 @@ double Size_Neighbourhood;
 /* 2 or 3 dimensions? */
 double Dim;
 
+/* Parameters for the connectivity maintenance flocking */
+double Lambda2;
+
 /* Parameters of the arena */
 double ArenaRadius;
 double ArenaShape;

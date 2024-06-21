@@ -114,20 +114,22 @@ void DrawMenuItemsOfUnitModel(const unit_model_params_t * UnitParams,
     /* Parameters of the communictation */
     DrawMenuItemOfUnitModel('c', &UnitParams->linear_loss, 3, 1.0,
             0.8 - HEIGHT_OF_MENU_ITEM * 11 - Offset, color);
-    DrawMenuItemOfUnitModel('d', &UnitParams->alpha, 1, 1.0,
+    DrawMenuItemOfUnitModel('d', &UnitParams->gamma, 1, 1.0,
             0.8 - HEIGHT_OF_MENU_ITEM * 12 - Offset, color);
-    DrawMenuItemOfUnitModel('e', &UnitParams->ref_distance, 1, 0.01,
+    DrawMenuItemOfUnitModel('e', &UnitParams->gammaObst, 1, 1.0,
             0.8 - HEIGHT_OF_MENU_ITEM * 13 - Offset, color);
-    DrawMenuItemOfUnitModel('f', &UnitParams->transmit_power, 2, 1.0,
+    DrawMenuItemOfUnitModel('f', &UnitParams->ref_distance, 1, 0.01,
             0.8 - HEIGHT_OF_MENU_ITEM * 14 - Offset, color);
-    DrawMenuItemOfUnitModel('g', &UnitParams->freq, 2, 1.0,
+    DrawMenuItemOfUnitModel('g', &UnitParams->transmit_power, 2, 1.0,
             0.8 - HEIGHT_OF_MENU_ITEM * 15 - Offset, color);
-    DrawMenuItemOfUnitModel('h', &UnitParams->sensitivity_thresh, 2, 1.0,
+    DrawMenuItemOfUnitModel('h', &UnitParams->freq, 2, 1.0,
             0.8 - HEIGHT_OF_MENU_ITEM * 16 - Offset, color);
-    DrawMenuItemOfUnitModel('i', &UnitParams->communication_type, 1, 1.0,
+    DrawMenuItemOfUnitModel('i', &UnitParams->sensitivity_thresh, 2, 1.0,
             0.8 - HEIGHT_OF_MENU_ITEM * 17 - Offset, color);
-    DrawMenuItemOfUnitModel('j', &UnitParams->flocking_type, 1, 1.0,
+    DrawMenuItemOfUnitModel('j', &UnitParams->communication_type, 1, 1.0,
             0.8 - HEIGHT_OF_MENU_ITEM * 18 - Offset, color);
+    DrawMenuItemOfUnitModel('k', &UnitParams->flocking_type, 1, 1.0,
+            0.8 - HEIGHT_OF_MENU_ITEM * 19 - Offset, color);
 
 }
 

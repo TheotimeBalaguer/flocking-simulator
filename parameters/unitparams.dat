@@ -19,9 +19,11 @@ Wind_Magn_Avg=0.000000
 Wind_StDev=0.000000
 Wind_Angle=0.000000
 # Reference Comm Distance (cm)
-Reference_Distance=600.000000
-# Alpha (-)
-Alpha=2.000000
+Reference_Distance=1.000000
+# Gamma (-)
+Gamma=2.000000
+# GammaObst (-)
+GammaObst=4.000000
 # Linear loss (dBm/m)
 Linear_Loss=0.008000
 # Transmittion power (dBm)
@@ -33,4 +35,4 @@ Sensitivity_thresh=-70.000000
 # Communication type (-)
 Communication_type=2.000000
 # Flocking type (-)
-Flocking_type=0.000000
+Flocking_type=6.000000

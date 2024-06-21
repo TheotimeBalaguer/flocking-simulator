@@ -159,7 +159,7 @@ void DrawSensorRangeNetwork_2D(phase_t * PhaseData,
         double *ToSort;
         ToSort = malloc(sizeof(double) * PhaseData[0].NumberOfAgents);
         for (int k = 0; k < PhaseData[0].NumberOfAgents; k++) {
-                ToSort[k] = PhaseData[Now].Laplacian[WhichAgent][k];
+                ToSort[k] = PhaseData[Now].ReceivedPower[WhichAgent][k];
         }
 
         int *Indexes;
@@ -168,8 +168,6 @@ void DrawSensorRangeNetwork_2D(phase_t * PhaseData,
         ArgMaxSort(ToSort, PhaseData[0].NumberOfAgents, Indexes);
 
         free(ToSort);
-
-        
 
         for (i = 0; i < PhaseData[0].NumberOfAgents; i++) {
 
@@ -184,7 +182,7 @@ void DrawSensorRangeNetwork_2D(phase_t * PhaseData,
                         double *NeighToSort;
                         NeighToSort = malloc(sizeof(double) * PhaseData[0].NumberOfAgents);
                         for (int k = 0; k < PhaseData[0].NumberOfAgents; k++) {
-                                NeighToSort[k] = PhaseData[Now].Laplacian[i][k];
+                                NeighToSort[k] = PhaseData[Now].ReceivedPower[i][k];
                         }
 
                         int *NeighIndexes;
@@ -249,7 +247,7 @@ void DrawSensorRangeNetwork_2D(phase_t * PhaseData,
 
                         else if ((int)(Unit_params->communication_type.Value) == 1) {
 
-                                if (PhaseData[Now].Laplacian[WhichAgent][i] > Unit_params->sensitivity_thresh.Value && IsLeading == true) {
+                                if (PhaseData[Now].ReceivedPower[WhichAgent][i] > Unit_params->sensitivity_thresh.Value && IsLeading == true) {
                                         
                                         ArrowCenterX =
                                                 (ActualAgentsCoordinates[0] +
@@ -268,7 +266,7 @@ void DrawSensorRangeNetwork_2D(phase_t * PhaseData,
                                                         VizParams->MapSizeXY), angle, color);
                                 }
 
-                                else if (PhaseData[Now].Laplacian[WhichAgent][i] > Unit_params->sensitivity_thresh.Value) {
+                                else if (PhaseData[Now].ReceivedPower[WhichAgent][i] > Unit_params->sensitivity_thresh.Value) {
 
                                         CenterX1 = ActualAgentsCoordinates[0] - VizParams->CenterX;
                                         CenterY1 = ActualAgentsCoordinates[1] - VizParams->CenterY;
@@ -287,7 +285,7 @@ void DrawSensorRangeNetwork_2D(phase_t * PhaseData,
 
                         else if ((int)(Unit_params->communication_type.Value) == 2) {
 
-                                if (PhaseData[Now].Laplacian[WhichAgent][i] > Unit_params->sensitivity_thresh.Value && IsLeading == true) {
+                                if (PhaseData[Now].ReceivedPower[WhichAgent][i] > Unit_params->sensitivity_thresh.Value && IsLeading == true) {
                                         
                                         ArrowCenterX =
                                                 (ActualAgentsCoordinates[0] +
@@ -388,10 +386,103 @@ void DrawSensorRangeNetwork_2D(phase_t * PhaseData,
 
                         }
 
-                }              
+                }
 
         }
 
+}
+
+void DrawNeighbors(phase_t * PhaseData, const int WhichAgent,
+            double ** Polygons,
+            const int Now,
+            vizmode_params_t * VizParams, const float *color){
+    
+    // printf("Neighbours sets:\n");
+    // PrintMatrix(PhaseData[Now].NeighSet, PhaseData[0].NumberOfAgents, PhaseData[0].NumberOfAgents);
+    // printf("numberOfAgents: %d\n", PhaseData[0].NumberOfAgents);
+
+
+    int i, j;  
+    const float RedColor[3] = {0.9, 0.1, 0.1};
+
+    double *ActualAgentsCoordinates = PhaseData[Now].Coordinates[WhichAgent];
+    GetAgentsCoordinatesFromTimeLine(ActualAgentsCoordinates, PhaseData, WhichAgent, Now);
+
+    static double NeighboursCoordinates[3];
+    static double DifferenceVector[3];
+    static double AbsDistance;
+
+    static double ArrowCenterX;
+    static double ArrowCenterY;
+    static double angle;
+    static double CenterX1, CenterX2, CenterY1, CenterY2; 
+
+    // Agent 0 is WhichAgent
+    for (i = 1; i < PhaseData[0].NumberOfAgents; i++) {
+        if (PhaseData[Now].NeighSet[WhichAgent][i] != -1.0)
+        {
+            int neighborID = (int)PhaseData[Now].NeighSet[WhichAgent][i];
+
+        //     printf("Printing an arrow between %d and %d\n", WhichAgent, neighborID);
+        
+            GetAgentsCoordinatesFromTimeLine(NeighboursCoordinates, PhaseData, neighborID, Now);
+            VectDifference(DifferenceVector, ActualAgentsCoordinates, NeighboursCoordinates);
+            AbsDistance = VectAbs(DifferenceVector);
+
+            ArrowCenterX =
+                    (ActualAgentsCoordinates[0] +
+                    NeighboursCoordinates[0]) * 0.5 - VizParams->CenterX;
+            ArrowCenterY =
+                    (ActualAgentsCoordinates[1] +
+                    NeighboursCoordinates[1]) * 0.5 - VizParams->CenterY;
+
+            DifferenceVector[2] = 0;
+            angle = -atan2(DifferenceVector[1], DifferenceVector[0]);
+
+            DrawThinArrow(RealToGlCoord_2D(ArrowCenterX,VizParams->MapSizeXY),
+                        RealToGlCoord_2D(ArrowCenterY, VizParams->MapSizeXY),
+                        RealToGlCoord_2D(VectAbs(DifferenceVector) - 60,
+                                VizParams->MapSizeXY), RealToGlCoord_2D(30,
+                                VizParams->MapSizeXY), angle, color);
+
+            // Draw red circles where the link collides with obstacles
+            for (j = 0; j < obstacles.o_count; j++){
+
+                    double **Intersections;
+                    Intersections = malloc(sizeof(double *) * 2);
+                    Intersections[0] = malloc(sizeof(double) * 3);
+                    Intersections[1] = malloc(sizeof(double) * 3);
+
+                    int NumberOfIntersections;
+
+                    NumberOfIntersections = IntersectionOfSegmentAndPolygon2D(Intersections,
+                    PhaseData[Now].Coordinates[WhichAgent], PhaseData[Now].Coordinates[neighborID], 
+                    Polygons[j], obstacles.o[j].p_count);
+
+                    if (NumberOfIntersections == 2){
+
+                            DrawCircle(RealToGlCoord_2D(Intersections[0][0] - VizParams->CenterX, 
+                            VizParams->MapSizeXY), RealToGlCoord_2D(Intersections[0][1] - VizParams->CenterY, 
+                            VizParams->MapSizeXY), RealToGlCoord_2D(1000, VizParams->MapSizeXY), RedColor);
+
+                            DrawCircle(RealToGlCoord_2D(Intersections[1][0] - VizParams->CenterX, 
+                            VizParams->MapSizeXY), RealToGlCoord_2D(Intersections[1][1] - VizParams->CenterY, 
+                            VizParams->MapSizeXY), RealToGlCoord_2D(1000, VizParams->MapSizeXY), RedColor);
+
+                            // DrawLine(RealToGlCoord_2D(Intersections[0][0] - VizParams->CenterX, VizParams->MapSizeXY),
+                            // RealToGlCoord_2D(Intersections[0][1] - VizParams->CenterY, VizParams->MapSizeXY),
+                            // RealToGlCoord_2D(Intersections[1][0] - VizParams->CenterX, VizParams->MapSizeXY),
+                            // RealToGlCoord_2D(Intersections[1][1] - VizParams->CenterY, VizParams->MapSizeXY), 
+                            // RealToGlCoord_2D(80, VizParams->MapSizeXY), RedColor);
+                    }
+
+                    freeMatrix(Intersections, 2, 3);
+            }
+
+        }
+
+
+    }
 }
 
 /* 3D objects */
@@ -426,7 +517,7 @@ void DrawSensorRangeNetwork_3D(phase_t * PhaseData,
                     NeighboursCoordinates);
         //     if (VectAbs(DifferenceVector) < SensorRangeToDisplay) {
             if (VectAbs(DifferenceVector) < SensorRangeToDisplay &&
-                        PhaseData[Now].Laplacian[WhichAgent][i] >= PowerThreshold) {
+                        PhaseData[Now].ReceivedPower[WhichAgent][i] >= PowerThreshold) {
                 
                 glColor3f(color[0], color[1], color[2]);
 

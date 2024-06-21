@@ -86,9 +86,22 @@ void TargetTracking(double *OutputVelocity, double *TargetPosition,
         const int SizeOfNeighbourhood, const int WhichAgent, 
         const int Dim_l);
 
-/* Target tracking function without attrcaction to CoM */
+/* Target tracking function without attraction to CoM */
 void TargetTrackingSimple(double *OutputVelocity, double *TargetPosition,
         phase_t * Phase, const double R_trg, const double d_trg, 
         const int WhichAgent, const int Dim_l);
-        
+
+/* Potential based term based on Li 2020 paper */
+void PotentialBased(double *OutputVelocity,
+                    phase_t *Phase, 
+                    const double K0, const double R, const double r1, const double r2, const double mu1, const double mu2,
+                    const int WhichAgent, const int Dim_l,
+                    const bool normalize);
+
+void GlobalConnectivityController(double *OutputVelocity,
+                                   phase_t *Phase,
+                                   const double Kc0, const double sigma, const double lambda_goal, const double R,
+                                   const int WhichAgent, const int Dim_l,
+                                   bool normalize);
+
 #endif
