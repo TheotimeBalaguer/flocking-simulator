@@ -39,16 +39,16 @@ B_Action_Function=37.000000
 # Size of neighbourhood (-)
 Size_Neighbourhood=8.000000
 # Arena Radius (Multiply it with 0.010000 to get its Value in m)
-ArenaRadius=22400.000000
+ArenaRadius=44400.000000
+# Target lambda2 (-)
+Lambda2=4.000000
 # Friction coefficient (-)
 C_Frict=0.050000
 # Arena Center X (Multiply it with 0.010000 to get its Value in m)
-ArenaCenterX=2314.666667
+ArenaCenterX=-19066.666667
 # Arena Center Y (Multiply it with 0.010000 to get its Value in m)
-ArenaCenterY=-8773.333333
+ArenaCenterY=-18133.333333
 # Shape of the arena (Multiply it with 0.000000 to get its real Value)
 ArenaShape=1.000000
 # Number of dimensions in the simulation (2 or 3)
 Dim=2.000000
-# Target for the value of the second eigenvalue of the Laplacian matrix
-Lambda2=4.000000

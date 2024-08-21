@@ -851,13 +851,13 @@ void ShiftInnerStateDataLine(phase_t *PhaseData,
 }
 
 /* Waiting - Filling up first rows of phase data timeline */
-void Wait(phase_t *PhaseData, const double TimeToWait, const double h)
+void Wait(phase_t *PhaseData, const double TimeToWait, const double deltaT)
 {
 
     int i, j, k;
 
     /* Positions and velocities */
-    for (i = 1; i < ((int)((1 + TimeToWait) / h)); i++)
+    for (i = 1; i < ((int)((1 + TimeToWait) / deltaT)); i++)
     {
         for (j = 0; j < PhaseData[0].NumberOfAgents; j++)
         {
@@ -2565,6 +2565,7 @@ void PrintInnerState(double *AgentInnerState)
 */
 void DefineNeighborhood(phase_t *Phase, const int WhichAgent, const int SizeToSort, const double ReceptionThreshold, const int size_neighborhood)
 {
+
     int i, j;
     int NumberOfNeighbours = 1;
     // Move the WhichAgent information of ID and ReceivedPower (0.0) to the first cell 
@@ -2596,13 +2597,30 @@ void DefineNeighborhood(phase_t *Phase, const int WhichAgent, const int SizeToSo
     // Fetch the sorted RealIDs and fill the neighbors set according to conditions 
     for (i = 1; i < SizeToSort; i++)
     {
-        if (Phase->ReceivedPower[0][i] > ReceptionThreshold && i < size_neighborhood + 1)
+        if (Phase->ReceivedPower[0][i] > ReceptionThreshold && NumberOfNeighbours < size_neighborhood + 1)
         {
             Phase->NeighSet[0][i] = Phase->RealIDs[i];
             NumberOfNeighbours++;
         }
     }
 
-    Phase->NumberOfAgents = NumberOfNeighbours;
 
+}
+
+void PrintPhase(phase_t *Phase)
+{
+    int i, j;
+    printf("Coordinates :\n");
+    PrintMatrix(Phase->Coordinates, Phase->NumberOfAgents, 3);
+    printf("Velocity :\n");
+    PrintMatrix(Phase->Velocities, Phase->NumberOfAgents, 3);
+    printf("Laplacian :\n");
+    PrintMatrix(Phase->Laplacian, Phase->NumberOfAgents, Phase->NumberOfAgents);
+    printf("SecondEigenvalue : %f\n", Phase->SecondEigenvalue);
+    printf("Received Power: \n");
+    PrintMatrix(Phase->ReceivedPower, Phase->NumberOfAgents, Phase->NumberOfAgents);
+    printf("NeighSet :\n");
+    PrintMatrix(Phase->NeighSet, Phase->NumberOfAgents, Phase->NumberOfAgents);
+    printf("NumberOfAgents : %d\n", Phase->NumberOfAgents);
+    printf("\n");
 }

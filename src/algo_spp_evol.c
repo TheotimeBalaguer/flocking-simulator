@@ -1024,7 +1024,7 @@ void CalculatePreferredVelocity(double *OutputVelocity,
     OutputInnerState[16] = GlobalConnectivityVelocity[1];
 
     // if (Phase->RealIDs[WhichAgent] == 0) {
-    // printf("Agent %d\nPressure Repulsion = %f \nAttraction = %f\nAlignement = %f\nObstacles = %f\n\n",Phase->RealIDs[WhichAgent], VectAbs(PressureVelocity),
+    // printf("Agent %d\nPotential = %f \nAttraction = %f\nAlignement = %f\nObstacles = %f\n\n",Phase->RealIDs[WhichAgent], VectAbs(AdjacencyPotentialVelocity),
     //     VectAbs(AttractionVelocity), VectAbs(SlipVelocity), VectAbs(ObstacleVelocity));
     // }
 
@@ -1157,7 +1157,7 @@ void CalculatePreferredVelocity(double *OutputVelocity,
     }
     else if (Flocking_type == 6)
     {
-        // VectSum(OutputVelocity, OutputVelocity, SlipVelocity);
+        VectSum(OutputVelocity, OutputVelocity, SlipVelocity);
         VectSum(OutputVelocity, OutputVelocity, AdjacencyPotentialVelocity);
         VectSum(OutputVelocity, OutputVelocity, GlobalConnectivityVelocity);
         VectSum(OutputVelocity, OutputVelocity, TargetTrackingVelocity);
@@ -1171,7 +1171,7 @@ void CalculatePreferredVelocity(double *OutputVelocity,
     VectSum(OutputVelocity, OutputVelocity, ArenaVelocity);
     VectSum(OutputVelocity, OutputVelocity, ObstacleVelocity);
 
-    // printf("%f\n", VectAbs(OutputVelocity));
+    // printf("OutputVelocity (%d) : (%f %f %f)\n", Phase->RealIDs[WhichAgent], OutputVelocity[0], OutputVelocity[1], OutputVelocity[2]);
 
     /* V_pref saturates at V_Max */
     static bool CutOffMode = false;

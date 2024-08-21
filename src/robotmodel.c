@@ -24,6 +24,7 @@ const double packet_loss_ratio = .3;
 /* For passing debug information to CalculatePreferredVelocity function */
 agent_debug_info_t DebugInfo;
 
+
 /* Calculating the phase space observed by the "WhichAgent"th unit.  */
 void CreatePhase(phase_t *LocalActualPhaseToCreate,
                  phase_t *GPSPhase,
@@ -35,7 +36,9 @@ void CreatePhase(phase_t *LocalActualPhaseToCreate,
                  node *Hull,
                  const int WhichAgent,
                  unit_model_params_t *UnitParams,
-                 const bool OrderByDistance)
+                 const bool OrderByDistance,
+                 double **Neighbours,
+                 double **LinkQuality)
 {
 
     // printf("\nCreating ego-phase of agent %d\n", WhichAgent);
@@ -68,13 +71,35 @@ void CreatePhase(phase_t *LocalActualPhaseToCreate,
 
         LocalActualPhaseToCreate->Pressure[i] = Phase->Pressure[i];
 
-        // for (j = 0; j < Phase->NumberOfAgents; j++)
-        // {
-        //     LocalActualPhaseToCreate->NeighSet[i][j] = Phase->NeighSet[i][j];
-        //     // printf("%f\t", Phase->NeighSet[i][j]);
-        // }
-        // printf("\n");
     }
+
+#ifdef COSIM_MODE
+    
+    // // If in Co-simulation mode, neighbours and link quality lists are passed through function variables
+
+    // printf("[Agent %d] Received Neighbors list:\n", WhichAgent);
+    // PrintVector(Neighbours[WhichAgent], Phase->NumberOfAgents);
+    // PrintVector(LinkQuality[WhichAgent], Phase->NumberOfAgents);
+
+    NumberOfNeighbours = 1;
+    // Move the WhichAgent information of ID and ReceivedPower (0.0) to the first cell 
+    SwapAgents(LocalActualPhaseToCreate, WhichAgent, 0);
+    // In Cosim mode, the neighbours lists and link quality are already ordered upon reception. The first value is not used, e.g. :
+    // NeighSet[0] = [-1, 2.000, 1.000]      ReceivedPower[0] = [-inf, -79.390, -84.291] 
+    LocalActualPhaseToCreate->NeighSet[0] = Neighbours[WhichAgent];
+    LocalActualPhaseToCreate->ReceivedPower[0] = LinkQuality[WhichAgent];
+    for(i = 0; i < LocalActualPhaseToCreate->NumberOfAgents; i++)
+    {
+        if(LocalActualPhaseToCreate->NeighSet[0][i] != -1)
+        {
+            NumberOfNeighbours++;
+        }
+    }
+    LocalActualPhaseToCreate->NumberOfAgents = NumberOfNeighbours;
+
+
+    
+#else
 
     static double ActualAgentsPosition[3];
     GetAgentsCoordinates(ActualAgentsPosition, Phase, WhichAgent);
@@ -174,20 +199,16 @@ void CreatePhase(phase_t *LocalActualPhaseToCreate,
         }
     }
 
-    // printf("Powers computed ! They look like that :\n(");
-    // for (int u = 0; u < Phase->NumberOfAgents; u++)
-    // {
-    //     printf("%d  ", LocalActualPhaseToCreate->RealIDs[u]);
-    // }
-    // printf(")\n");
-    // PrintVector(LocalActualPhaseToCreate->ReceivedPower[0], Phase->NumberOfAgents);
-
+    // Define the neighborhood of the actual agent based on received powers, sensitivity threshold and size of neighbourhood. 
+    // Phase->NeighSet, Phase->ReceivedPower, Phase->NumberOfAgents are modified. 
     DefineNeighborhood(LocalActualPhaseToCreate, WhichAgent, Phase->NumberOfAgents, UnitParams->sensitivity_thresh.Value, Size_Neighbourhood);
 
-    // printf("Which means my neighbors are:\n");
+#endif
+    
+
+    // printf("My neighbors are:\n");
     // PrintVector(LocalActualPhaseToCreate->NeighSet[0], Phase->NumberOfAgents);
     // PrintVector(LocalActualPhaseToCreate->ReceivedPower[0], Phase->NumberOfAgents);
-
 
 /*
     if (OrderByDistance)
@@ -254,16 +275,19 @@ void CreatePhase(phase_t *LocalActualPhaseToCreate,
 */
 
     // for (i = 0; i < Phase->NumberOfAgents; i ++) {
-    //     if (i < NumberOfNeighbours) {
-    //         LocalActualPhaseToCreate->NeighSet[0][i] = LocalActualPhaseToCreate->RealIDs[i];
-    //     }
-    //     else {
-    //         LocalActualPhaseToCreate->NeighSet[0][i] = -1;
-    //     }
-    //     printf("%d is connected to %f\n", WhichAgent, LocalActualPhaseToCreate->NeighSet[0][i]);
+        // if (i < NumberOfNeighbours) {
+            // LocalActualPhaseToCreate->NeighSet[0][i] = LocalActualPhaseToCreate->RealIDs[i];
+        // }
+        // else {
+            // LocalActualPhaseToCreate->NeighSet[0][i] = -1;
+        // }
+        // printf("%d is connected to %f\n", WhichAgent, LocalActualPhaseToCreate->NeighSet[0][i]);
     // }
     // printf("\n");
     // printf("inner state of agent %d is %f\n", WhichAgent, Phase->InnerStates[WhichAgent][2]);
+
+    // printf("Phase of agent %d\n", WhichAgent);
+    // PrintPhase(LocalActualPhaseToCreate);
 
     /* Setting up delay and GPS inaccuracy for positions and velocities */
 
@@ -291,10 +315,10 @@ void CreatePhase(phase_t *LocalActualPhaseToCreate,
     GetAgentsCoordinates(RealPosition, Phase, WhichAgent);
 
     /* Adding term of GPS errors (XY) */
+    GetAgentsCoordinates(RealPosition, LocalActualPhaseToCreate, 0);
+    GetAgentsVelocity(RealVelocity, LocalActualPhaseToCreate, 0);
     GetAgentsCoordinates(GPSPositionToAdd, GPSPhase, WhichAgent); // WhichAgent = RealIDs[0] = 0
     GetAgentsVelocity(GPSVelocityToAdd, GPSPhase, WhichAgent);
-    GetAgentsVelocity(RealVelocity, LocalActualPhaseToCreate, 0);
-    GetAgentsCoordinates(RealPosition, LocalActualPhaseToCreate, 0);
     VectSum(RealVelocity, RealVelocity, GPSVelocityToAdd);
     VectSum(RealPosition, RealPosition, GPSPositionToAdd);
     InsertAgentsCoordinates(LocalActualPhaseToCreate, RealPosition, 0);
@@ -303,8 +327,8 @@ void CreatePhase(phase_t *LocalActualPhaseToCreate,
     for (i = 1; i < NumberOfNeighbours; i++)
     {
 
-        GetAgentsVelocity(RealVelocity, LocalActualPhaseToCreate, i);
         GetAgentsCoordinates(RealPosition, LocalActualPhaseToCreate, i);
+        GetAgentsVelocity(RealVelocity, LocalActualPhaseToCreate, i);
 
         GetAgentsCoordinates(GPSPositionToAdd, GPSDelayedPhase,
                              LocalActualPhaseToCreate->RealIDs[i]);
@@ -464,7 +488,6 @@ void RealCoptForceLaw(double *OutputVelocity, double *OutputInnerState,
 
         for (i = 0; i < 3; i++)
         {
-
             PreferredVelocities[WhichAgent][i] = TempTarget[i];
         }
     }
@@ -513,7 +536,8 @@ void Step(phase_t *OutputPhase, phase_t *GPSPhase, phase_t *GPSDelayedPhase,
           bool CountCollisions, bool *ConditionsReset, int *Collisions,
           bool *AgentsInDanger, int *CollisionsObst, bool *AgentInObst,
           double *WindVelocityVector, double *Accelerations,
-          double **TargetsArray, double **Polygons, node **Hull, int Verbose)
+          double **TargetsArray, double **Polygons, node **Hull, int Verbose,
+          double **Neighbours, double **LinkQuality)
 {
 
     int i, j, k;
@@ -599,14 +623,14 @@ void Step(phase_t *OutputPhase, phase_t *GPSPhase, phase_t *GPSDelayedPhase,
 
     OutputPhase->Laplacian = WeightedLaplacian;
     
-    printf("Laplacian:\n");
-    PrintMatrix(OutputPhase->Laplacian, SitParams->NumberOfAgents, SitParams->NumberOfAgents);
+    // printf("Laplacian:\n");
+    // PrintMatrix(OutputPhase->Laplacian, SitParams->NumberOfAgents, SitParams->NumberOfAgents);
 
-    printf("\nReceivedPower:\n");
-    PrintMatrix(OutputPhase->ReceivedPower, SitParams->NumberOfAgents, SitParams->NumberOfAgents);
+    // printf("\nReceivedPower:\n");
+    // PrintMatrix(OutputPhase->ReceivedPower, SitParams->NumberOfAgents, SitParams->NumberOfAgents);
 
-    printf("\nNeighbors:\n");
-    PrintMatrix(OutputPhase->NeighSet, SitParams->NumberOfAgents, SitParams->NumberOfAgents);
+    // printf("\nNeighbors:\n");
+    // PrintMatrix(OutputPhase->NeighSet, SitParams->NumberOfAgents, SitParams->NumberOfAgents);
 
 
     /* Compute the eigenvalues and associated eigenvectors */
@@ -657,7 +681,7 @@ void Step(phase_t *OutputPhase, phase_t *GPSPhase, phase_t *GPSDelayedPhase,
     secondEigenvector = Eigenvectors[1];
     OutputPhase->SecondEigenvector = secondEigenvector;
     
-    printf("Second eigenvalue: %f\n", OutputPhase->SecondEigenvalue);
+    // printf("Second eigenvalue: %f\n", OutputPhase->SecondEigenvalue);
     // printf("Second eigenvector:");
     // PrintVector(OutputPhase->SecondEigenvector, n);
 
@@ -688,7 +712,14 @@ void Step(phase_t *OutputPhase, phase_t *GPSPhase, phase_t *GPSDelayedPhase,
                     // (TimeStepLooped % ((int)(UnitParams->t_GPS.Value /
                     //                          SitParams->DeltaT)) ==
                     //  0));
-                    true);
+                    true,
+                    Neighbours,
+                    LinkQuality);
+
+        // CreatePhaseCosim(&TempPhase, GPSPhase, GPSDelayedPhase, &LocalActualPhase, &LocalActualDelayedPhase,
+        //             Polygons, *Hull, j, 
+        //             Neighbours, LinkQuality, true, UnitParams);
+        
         GetAgentsVelocity(ActualRealVelocity, &LocalActualPhase, j);
         /* Fill the Laplacian Matrix in dBm */
         for (i = 0; i < SitParams->NumberOfAgents; i++)

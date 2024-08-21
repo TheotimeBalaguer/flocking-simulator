@@ -46,7 +46,7 @@ void Step(phase_t * OutputPhase, phase_t * GPSPhase, phase_t * GPSDelayedPhase,
         bool CountCollisions, bool * ConditionsReset, int *Collisions,
         bool * AgentsInDanger, int *CollisionsObst, bool* AgentInObst,
         double *WindVelocityVector, double *Accelerations,
-        double ** TargetsArray, double **Polygons, node **Hull, int Verbose);
+        double ** TargetsArray, double **Polygons, node **Hull, int Verbose, double **NeighborsFromNS, double **LinkQualityFromNS);
 
 /*  Initialization and killing
  */

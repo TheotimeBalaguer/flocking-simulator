@@ -5,6 +5,7 @@
 PNG_OUT := $(strip $(pngout))
 DEBUG_MODE := $(strip $(debug))
 SERVER_MODE := $(strip $(server))
+COSIM_MODE := $(strip $(cosim))
 
 DEFAULT_FLAGS := -lm
 LINEAR_ALGEBRA_FLAGS := -llapack -lblas
@@ -37,6 +38,11 @@ endif
 # Debug mode for segfault detection
 ifeq ($(DEBUG_MODE), true)
  GCC += -DDEBUG -rdynamic -pg
+endif
+
+# co-simulation mode, enable by compiling with eg "make spp_evol cosim=true"
+ifeq ($(COSIM_MODE), true)
+ GCC += src/utilities/IPC_utils.c -DCOSIM_MODE
 endif
 
 #GCC += $(DEFAULT_FLAGS) $(VIZUALIZER_FLAGS) $(ERROR_FLAGS) $(CANCEL_FLAGS) -o robotflocksim_main

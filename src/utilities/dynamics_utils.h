@@ -250,7 +250,7 @@ void InitCond(phase_t **PhaseData,
               const double InitialSizeZ, const double SizeOfCopter);
 
 /* Waiting - filling up timelines with initial conditions */
-void Wait(phase_t *PhaseData, const double TimeToWait, const double h);
+void Wait(phase_t *PhaseData, const double TimeToWait, const double deltaT);
 
 /* Figure out where we are in the grid for the CBP */
 void WhereInGrid(phase_t *Phase, const int Resolution,
@@ -400,5 +400,8 @@ double **expand(double *flat_array, int rows, int cols);
 void PrintInnerState(double *AgentInnerState);
 
 void DefineNeighborhood(phase_t *Phase, const int WhichAgent, const int SizeToSort, const double ReceptionThreshold, const int size_neighborhood);
+
+void PrintPhase(phase_t *Phase);
+
 
 #endif
