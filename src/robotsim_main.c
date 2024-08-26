@@ -181,12 +181,18 @@ void Initialize()
         }
     }
     TargetsArray = malloc(sizeof *TargetsArray);
-    TargetsArray[0] = malloc(sizeof **TargetsArray * 4);
-    // TargetsArray[0][0] = 55000;
-    // TargetsArray[0][1] = 32000;
+    // TargetsArray[0] = malloc(sizeof **TargetsArray * 4);
+    // TargetsArray[0][0] = 0;
+    // TargetsArray[0][1] = - 0.9*ActualSitParams.InitialY;
     // TargetsArray[0][2] = 0;
     // TargetsArray[0][3] = 1;
     // cnt +=1;
+    TargetsArray[0] = malloc(sizeof **TargetsArray * 4);
+    TargetsArray[0][0] = randomizeDouble(-1,1)*ActualSitParams.InitialX;
+    TargetsArray[0][1] = 0.9*ActualSitParams.InitialY ;
+    TargetsArray[0][2] = 0;
+    TargetsArray[0][3] = 1;
+    cnt +=1;
     // ActualVizParams.DisplayLeader = true;
     // printf("%d ", ActualVizParams.DisplayLeader);
 
@@ -213,8 +219,8 @@ void Initialize()
 
     /* Initializing "condition reset" variables.
      * These are necessary for setting up random positions during a simulated experiment. */
-    ConditionsReset[0] = true;
-    ConditionsReset[1] = true;
+    ConditionsReset[0] = false;
+    ConditionsReset[1] = false;
 
     /* Initializing visualization speed-up */
     ActualVizParams.Paused = true;
@@ -513,7 +519,7 @@ void DrawCopters(phase_t *Phase, phase_t *GPSPhase, const int TimeStep)
                 DrawCopter_2D(TargetsArray[i][0] -
                                   ActualVizParams.CenterX,
                               TargetsArray[i][1] - ActualVizParams.CenterY,
-                              ActualVizParams.MapSizeXY, 15000,
+                              ActualVizParams.MapSizeXY, 5000,
                               ActualColorConfig.AgentsColor[0]);
 
                 char TargetLabel[3];
@@ -2275,6 +2281,16 @@ int main(int argc, char *argv[])
     static char CurrentDirectory[512];
     getcwd(CurrentDirectory, sizeof(CurrentDirectory));
 
+    /* Open and accept UDS socket (blocking as long as viragh_connector is not up). Needs to be before parameter file reading, because viragh_connector modifies them. */
+#ifdef COSIM_MODE
+    const char *socket_name = "/tmp/viragh_server_socket";
+
+    int server_fd = openUDSSocketServer(socket_name);
+
+    printf("Waiting socket connection on %s...\n", socket_name);
+    client_fd = acceptUDSSocketConnection(server_fd);
+#endif
+
     /* Setting up structures containing the parameters of the "situation".
      * These parameters are:
      * Number of agents, Initial are sizes (X, Y, Z), Length of measurement, accuracy of the Euler-Maruyama method
@@ -2481,16 +2497,6 @@ int main(int argc, char *argv[])
                ActualSitParams.InitialX, ActualSitParams.InitialY,
                ActualSitParams.InitialZ);
     }
-
-    /* Open and accept UDS socket */
-#ifdef COSIM_MODE
-    const char *socket_name = "/tmp/viragh_server_socket";
-
-    int server_fd = openUDSSocketServer(socket_name);
-
-    printf("Waiting socket connection on %s...\n", socket_name);
-    client_fd = acceptUDSSocketConnection(server_fd);
-#endif
 
     /* Starting main loop of GL environment */
 

@@ -906,13 +906,18 @@ double Sigmoid(const double x, const double gamma, const double r0)
 
 double SigmoidLike(const double x, const double R, const double d)
 {
+    if (d == 0)
+    {
+        fprintf(stderr, "SigmoidLike: d should not be 0");
+        exit(EXIT_FAILURE);
+    }
     if (x < R)
     {
         return 0.0;
     }
     else if (x < R + d)
     {
-        return sin((M_PI * pow(d, -1.0)) * (x - R) - M_PI_2) + 1.0;
+        return (sin((M_PI * pow(d, -1.0)) * (x - R) - M_PI_2) + 1.0)/2;
     }
     else
     {

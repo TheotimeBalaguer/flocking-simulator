@@ -383,8 +383,8 @@ void InitializePhase(phase_t *Phase, flocking_model_params_t *FlockingParams,
     // Phase->Coordinates[0][0] = -1000;
     // Phase->Velocities[0][0] = 100;
 
-    PlaceAgentsInsideARing(Phase, 12000, 0, Phase->NumberOfAgents,
-                           ArenaCenterX, ArenaCenterY, 0, 0, MAX(SitParams->Radius, V_Flock * 2));
+    // PlaceAgentsInsideARing(Phase, 12000, 0, Phase->NumberOfAgents,
+    //                        ArenaCenterX, ArenaCenterY, 0, 0, MAX(SitParams->Radius, V_Flock * 2));
 
     /* reset z coordinate in two dimensions */
     if (2 == Dim)
@@ -946,7 +946,7 @@ void CalculatePreferredVelocity(double *OutputVelocity,
         if (WhichTarget != 0 && Phase->RealIDs[WhichAgent] == 0)
         {
             TargetTrackingSimple(TargetTrackingVelocity, TargetsArray[WhichTarget - 1],
-                                 Phase, 5000, 10000, WhichAgent, (int)Dim);
+                                 Phase, 2000, 2000, WhichAgent, (int)Dim);
             MultiplicateWithScalar(TargetTrackingVelocity, TargetTrackingVelocity,
                                    V_Flock, (int)Dim);
             UnitVect(NormalizedTargetTracking, TargetTrackingVelocity);
@@ -1157,9 +1157,9 @@ void CalculatePreferredVelocity(double *OutputVelocity,
     }
     else if (Flocking_type == 6)
     {
-        VectSum(OutputVelocity, OutputVelocity, SlipVelocity);
+        // VectSum(OutputVelocity, OutputVelocity, SlipVelocity);
         VectSum(OutputVelocity, OutputVelocity, AdjacencyPotentialVelocity);
-        VectSum(OutputVelocity, OutputVelocity, GlobalConnectivityVelocity);
+        // VectSum(OutputVelocity, OutputVelocity, GlobalConnectivityVelocity);
         VectSum(OutputVelocity, OutputVelocity, TargetTrackingVelocity);
 
         // printf("slip: %f, %f, %f\n", SlipVelocity[0], SlipVelocity[1], SlipVelocity[2]);

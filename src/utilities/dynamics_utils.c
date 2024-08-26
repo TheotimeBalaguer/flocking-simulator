@@ -1637,15 +1637,18 @@ void PlaceAgentsOntoALine(phase_t *Phase, const int fromAgent,
     }
 }
 
-/* Setting up random Initial conditions with zero Initial velocity */
+/* Setting up Initial conditions */
 void InitCond(phase_t **PhaseData,
               const double InitialSizeX,
               const double InitialSizeY,
               const double InitialSizeZ, const double SizeOfCopter)
 {
+    double tangential[3] = {1.0, 0.0, 0.0};
+    PlaceAgentsOntoALine(PhaseData[0], 0, PhaseData[0]->NumberOfAgents, tangential,
+                         0.0, -0.9*InitialSizeY, 0.0, InitialSizeX, SizeOfCopter);
 
-    RandomizePhase(PhaseData[0], InitialSizeX, InitialSizeY, InitialSizeZ, 0.0,
-                   0.0, 0.0, 0, PhaseData[0]->NumberOfAgents, SizeOfCopter);
+    // RandomizePhase(PhaseData[0], InitialSizeX, InitialSizeY, InitialSizeZ, 0.0,
+    //                0.0, 0.0, 0, PhaseData[0]->NumberOfAgents, SizeOfCopter);
 }
 
 /* Counting collisions */
