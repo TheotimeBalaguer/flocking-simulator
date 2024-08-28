@@ -1159,7 +1159,7 @@ void CalculatePreferredVelocity(double *OutputVelocity,
     {
         // VectSum(OutputVelocity, OutputVelocity, SlipVelocity);
         VectSum(OutputVelocity, OutputVelocity, AdjacencyPotentialVelocity);
-        // VectSum(OutputVelocity, OutputVelocity, GlobalConnectivityVelocity);
+        VectSum(OutputVelocity, OutputVelocity, GlobalConnectivityVelocity);
         VectSum(OutputVelocity, OutputVelocity, TargetTrackingVelocity);
 
         // printf("slip: %f, %f, %f\n", SlipVelocity[0], SlipVelocity[1], SlipVelocity[2]);

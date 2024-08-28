@@ -81,21 +81,28 @@ void CreatePhase(phase_t *LocalActualPhaseToCreate,
     // PrintVector(Neighbours[WhichAgent], Phase->NumberOfAgents);
     // PrintVector(LinkQuality[WhichAgent], Phase->NumberOfAgents);
 
-    NumberOfNeighbours = 1;
+    NumberOfNeighbours = 0;
     // Move the WhichAgent information of ID and ReceivedPower (0.0) to the first cell 
     SwapAgents(LocalActualPhaseToCreate, WhichAgent, 0);
     // In Cosim mode, the neighbours lists and link quality are already ordered upon reception. The first value is not used, e.g. :
     // NeighSet[0] = [-1, 2.000, 1.000]      ReceivedPower[0] = [-inf, -79.390, -84.291] 
-    LocalActualPhaseToCreate->NeighSet[0] = Neighbours[WhichAgent];
-    LocalActualPhaseToCreate->ReceivedPower[0] = LinkQuality[WhichAgent];
-    for(i = 0; i < LocalActualPhaseToCreate->NumberOfAgents; i++)
+    LocalActualPhaseToCreate->NeighSet[0][0] = Neighbours[WhichAgent][0];
+    LocalActualPhaseToCreate->ReceivedPower[0][0] = LinkQuality[WhichAgent][0];
+    for(i = 1; i < LocalActualPhaseToCreate->NumberOfAgents; i++)
     {
-        if(LocalActualPhaseToCreate->NeighSet[0][i] != -1)
+        if(Neighbours[WhichAgent][i] != -1 && NumberOfNeighbours < Size_Neighbourhood)
         {
             NumberOfNeighbours++;
+            LocalActualPhaseToCreate->NeighSet[0][i] = Neighbours[WhichAgent][i];
+            LocalActualPhaseToCreate->ReceivedPower[0][i] = LinkQuality[WhichAgent][i];
+        }
+        else
+        {
+            LocalActualPhaseToCreate->NeighSet[0][i] = -1;
+            LocalActualPhaseToCreate->ReceivedPower[0][i] = -INFINITY;
         }
     }
-    LocalActualPhaseToCreate->NumberOfAgents = NumberOfNeighbours;
+    LocalActualPhaseToCreate->NumberOfAgents = NumberOfNeighbours + 1;
 
 
     
@@ -721,20 +728,23 @@ void Step(phase_t *OutputPhase, phase_t *GPSPhase, phase_t *GPSDelayedPhase,
         //             Neighbours, LinkQuality, true, UnitParams);
         
         GetAgentsVelocity(ActualRealVelocity, &LocalActualPhase, j);
-        /* Fill the Laplacian Matrix in dBm */
-        for (i = 0; i < SitParams->NumberOfAgents; i++)
-        {
-            // if (j == TempPhase.RealIDs[i])
-            // {
-            //     OutputPhase->Laplacian[j][TempPhase.RealIDs[i]] = TempPhase.NumberOfAgents;
-            // }
-            // else
-            // {
-            //     OutputPhase->Laplacian[j][TempPhase.RealIDs[i]] = TempPhase.ReceivedPower[i];
-            // }
-            OutputPhase->ReceivedPower[j][i] = TempPhase.ReceivedPower[0][i];
-            OutputPhase->NeighSet[j][i] = TempPhase.NeighSet[0][i];
-        }
+        // /* Fill the Laplacian Matrix in dBm */
+        // for (i = 0; i < SitParams->NumberOfAgents; i++)
+        // {
+        //     // if (j == TempPhase.RealIDs[i])
+        //     // {
+        //     //     OutputPhase->Laplacian[j][TempPhase.RealIDs[i]] = TempPhase.NumberOfAgents;
+        //     // }
+        //     // else
+        //     // {
+        //     //     OutputPhase->Laplacian[j][TempPhase.RealIDs[i]] = TempPhase.ReceivedPower[i];
+        //     // }
+        //     OutputPhase->ReceivedPower[j][i] = TempPhase.ReceivedPower[0][i];
+        //     OutputPhase->NeighSet[j][i] = TempPhase.NeighSet[0][i];
+        // }
+        OutputPhase->ReceivedPower[j] = TempPhase.ReceivedPower[0];
+        OutputPhase->NeighSet[j] = TempPhase.NeighSet[0];
+
         OutputPhase->Pressure[j] = TempPhase.Pressure[0];
 
         // Copy the Laplacian and eigenvalues / eigenvectors to the tempPhase.

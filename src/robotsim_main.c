@@ -181,17 +181,17 @@ void Initialize()
         }
     }
     TargetsArray = malloc(sizeof *TargetsArray);
-    // TargetsArray[0] = malloc(sizeof **TargetsArray * 4);
-    // TargetsArray[0][0] = 0;
-    // TargetsArray[0][1] = - 0.9*ActualSitParams.InitialY;
-    // TargetsArray[0][2] = 0;
-    // TargetsArray[0][3] = 1;
-    // cnt +=1;
     TargetsArray[0] = malloc(sizeof **TargetsArray * 4);
-    TargetsArray[0][0] = randomizeDouble(-1,1)*ActualSitParams.InitialX;
-    TargetsArray[0][1] = 0.9*ActualSitParams.InitialY ;
+    TargetsArray[0][0] = 0;
+    TargetsArray[0][1] = - 0.9*ActualSitParams.InitialY;
     TargetsArray[0][2] = 0;
     TargetsArray[0][3] = 1;
+    cnt +=1;
+    TargetsArray[1] = malloc(sizeof **TargetsArray * 4);
+    TargetsArray[1][0] = randomizeDouble(-1,1)*ActualSitParams.InitialX;
+    TargetsArray[1][1] = 0.9*ActualSitParams.InitialY ;
+    TargetsArray[1][2] = 0;
+    TargetsArray[1][3] = 1;
     cnt +=1;
     // ActualVizParams.DisplayLeader = true;
     // printf("%d ", ActualVizParams.DisplayLeader);
