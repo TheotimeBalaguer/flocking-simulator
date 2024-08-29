@@ -2,7 +2,7 @@
 NumberOfAgents=6
 # Length of the simulated experiment (s)
 # 
-Length=6000.000000
+Length=150.000000
 # Initial sizes (cm)
 InitialX=30000.0
 InitialY=30000.0
