@@ -188,8 +188,9 @@ void Initialize()
     TargetsArray[0][3] = 1;
     cnt +=1;
     TargetsArray[1] = malloc(sizeof **TargetsArray * 4);
-    TargetsArray[1][0] = randomizeDouble(-1,1)*ActualSitParams.InitialX;
-    TargetsArray[1][1] = 0.9*ActualSitParams.InitialY ;
+    // TargetsArray[1][0] = randomizeDouble(-1,1)*ActualSitParams.InitialX;
+    TargetsArray[1][0] = 0;
+    TargetsArray[1][1] = -0.7*ActualSitParams.InitialY ;
     TargetsArray[1][2] = 0;
     TargetsArray[1][3] = 1;
     cnt +=1;
