@@ -1157,10 +1157,17 @@ void CalculatePreferredVelocity(double *OutputVelocity,
     }
     else if (Flocking_type == 6)
     {
-        // VectSum(OutputVelocity, OutputVelocity, SlipVelocity);
-        VectSum(OutputVelocity, OutputVelocity, AdjacencyPotentialVelocity);
-        VectSum(OutputVelocity, OutputVelocity, GlobalConnectivityVelocity);
-        VectSum(OutputVelocity, OutputVelocity, TargetTrackingVelocity);
+        if (Phase->RealIDs[WhichAgent] == 0 || Phase->RealIDs[WhichAgent] == 1){
+            // VectSum(OutputVelocity, OutputVelocity, SlipVelocity);
+            // VectSum(OutputVelocity, OutputVelocity, AdjacencyPotentialVelocity);
+            // VectSum(OutputVelocity, OutputVelocity, GlobalConnectivityVelocity);
+            VectSum(OutputVelocity, OutputVelocity, TargetTrackingVelocity);
+        } else {
+            // VectSum(OutputVelocity, OutputVelocity, SlipVelocity);
+            VectSum(OutputVelocity, OutputVelocity, AdjacencyPotentialVelocity);
+            VectSum(OutputVelocity, OutputVelocity, GlobalConnectivityVelocity);
+            VectSum(OutputVelocity, OutputVelocity, TargetTrackingVelocity);
+        }
 
         // printf("slip: %f, %f, %f\n", SlipVelocity[0], SlipVelocity[1], SlipVelocity[2]);
         // printf("potential: %f, %f, %f\n", AdjacencyPotentialVelocity[0], AdjacencyPotentialVelocity[1], AdjacencyPotentialVelocity[2]);
