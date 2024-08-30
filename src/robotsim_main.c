@@ -188,7 +188,8 @@ void Initialize()
     TargetsArray[0][3] = 1;
     cnt +=1;
     TargetsArray[1] = malloc(sizeof **TargetsArray * 4);
-    TargetsArray[1][0] = randomizeDouble(-1,1)*ActualSitParams.InitialX;
+    // TargetsArray[1][0] = randomizeDouble(-1,1)*ActualSitParams.InitialX;
+    TargetsArray[1][0] = 0;
     TargetsArray[1][1] = 0.9*ActualSitParams.InitialY ;
     TargetsArray[1][2] = 0;
     TargetsArray[1][3] = 1;
@@ -1290,8 +1291,7 @@ void UpdatePositionsToDisplay()
             {
                 // printf("Agent %d: ", i);
                 NeighborsFromNS[i][0] = -1.0;
-                LinkQualityFromNS[i][0] = -INFINITY; // OK this is weird but this comes from the fact that the indexes for neighbors and received powers
-                // in the rest of the code have the first value assigned to 'itself', so it not a neighbor and has no linkquality.
+                LinkQualityFromNS[i][0] = -INFINITY; // the first value is assigned to 'itself', so it is not a neighbor and has no linkquality.
                 for (j = 0; j < ActualSitParams.NumberOfAgents - 1; j++)
                 {
                     NeighborsFromNS[i][j+1] = buf[1 + i * 2 * ActualSitParams.NumberOfAgents + 2*j]; // Note : NeighborsFromNS and LinkQualityFromNS are global variables
@@ -1410,7 +1410,8 @@ void UpdatePositionsToDisplay()
         if (steps_to_advance <= 0)
         {
             char *buffer;
-            buffer = malloc(ActualSitParams.NumberOfAgents * 3 * sizeof(double));
+            // 3D positions of the agents + 1 bool value for "target reached" information
+            buffer = malloc((1 + ActualSitParams.NumberOfAgents * 3) * sizeof(double));
             for (int i = 0; i < ActualSitParams.NumberOfAgents; i++)
             {
                 for (int j = 0; j < 3; j++)
@@ -1418,6 +1419,21 @@ void UpdatePositionsToDisplay()
                     memcpy(buffer + (i * 3 + j) * sizeof(double), &PhaseData[Now].Coordinates[i][j], sizeof(double));
                 }
             }
+
+            double vector_to_target[3];
+            double dist_to_target_0;
+            double dist_to_target_1;
+            VectDifference(vector_to_target, PhaseData[Now].Coordinates[0], TargetsArray[0]);
+            dist_to_target_0 = VectAbs(vector_to_target);
+            VectDifference(vector_to_target, PhaseData[Now].Coordinates[1], TargetsArray[1]);
+            dist_to_target_1 = VectAbs(vector_to_target);
+            if(dist_to_target_0 < 2000.0 && dist_to_target_1 < 2000.0)
+            {
+                buffer[ActualSitParams.NumberOfAgents * 3] = 1.0;
+            } else {
+                buffer[ActualSitParams.NumberOfAgents * 3] = 0.0;
+            }
+
             sendOneMessage(client_fd, buffer, ActualSitParams.NumberOfAgents * 3 * sizeof(double));
             free(buffer);
         }

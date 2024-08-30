@@ -945,8 +945,8 @@ void CalculatePreferredVelocity(double *OutputVelocity,
 
         if (WhichTarget != 0 && Phase->RealIDs[WhichAgent] == 0)
         {
-            TargetTrackingSimple(TargetTrackingVelocity, TargetsArray[WhichTarget - 1],
-                                 Phase, 2000, 2000, WhichAgent, (int)Dim);
+            TargetTrackingSimple(TargetTrackingVelocity, TargetsArray[0],
+                                 Phase, 0, 2000, WhichAgent, (int)Dim);
             MultiplicateWithScalar(TargetTrackingVelocity, TargetTrackingVelocity,
                                    V_Flock, (int)Dim);
             UnitVect(NormalizedTargetTracking, TargetTrackingVelocity);
@@ -957,8 +957,8 @@ void CalculatePreferredVelocity(double *OutputVelocity,
 
         if (WhichTarget > 1 && Phase->RealIDs[WhichAgent] == 1)
         {
-            TargetTrackingSimple(TargetTrackingVelocity, TargetsArray[WhichTarget - 2],
-                                 Phase, 5000, 10000, WhichAgent, (int)Dim);
+            TargetTrackingSimple(TargetTrackingVelocity, TargetsArray[1],
+                                 Phase, 0, 2000, WhichAgent, (int)Dim);
             MultiplicateWithScalar(TargetTrackingVelocity, TargetTrackingVelocity,
                                    V_Flock, (int)Dim);
             UnitVect(NormalizedTargetTracking, TargetTrackingVelocity);
